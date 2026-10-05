@@ -1,0 +1,35 @@
+{
+  "name": "documind-ai",
+  "version": "0.1.0",
+  "description": "AI-powered document intelligence platform with RAG capabilities",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "npm run --workspaces --parallel dev",
+    "client": "npm run --workspace=client dev",
+    "server": "npm run --workspace=server dev",
+    "build": "npm run --workspaces build",
+    "lint": "npm run --workspaces lint",
+    "type-check": "npm run --workspaces type-check",
+    "docker-up": "docker-compose up -d",
+    "docker-down": "docker-compose down"
+  },
+  "keywords": [
+    "ai",
+    "document-intelligence",
+    "rag",
+    "embeddings",
+    "pdf-processing",
+    "ai-chat"
+  ],
+  "author": "DocuMind AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
