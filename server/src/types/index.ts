@@ -1,12 +1,4 @@
-// Type definitions for the application
-// These will be expanded in future phases
+// Auth types are in auth.types.ts
+export * from './auth.types';
 
-export interface ApiError extends Error {
-  statusCode?: number;
-}
-
-export interface PaginationQuery {
-  page: number;
-  limit: number;
-  sort?: string;
-}
+// Add other types here as they are created

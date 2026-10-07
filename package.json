@@ -1,6 +1,6 @@
 {
   "name": "documind-ai",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI-powered document intelligence platform with RAG capabilities",
   "type": "module",
   "private": true,
@@ -24,7 +24,9 @@
     "rag",
     "embeddings",
     "pdf-processing",
-    "ai-chat"
+    "ai-chat",
+    "authentication",
+    "jwt"
   ],
   "author": "DocuMind AI Team",
   "license": "MIT",

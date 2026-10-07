@@ -2,10 +2,11 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { env } from './config/environment';
 import { logger } from './utils/logger';
 import { sendError } from './utils/response';
-import healthRoutes from './routes/health.routes';
+import authRoutes from './routes/auth.routes';
 
 const app: Express = express();
 
@@ -39,15 +40,26 @@ app.use(
 );
 
 // ==========================================
-// Body Parser Middleware
+// Body Parser & Cookie Parser Middleware
 // ==========================================
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(cookieParser());
+
+// ==========================================
+// Health Check Endpoint
+// ==========================================
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: 'DocuMind AI API is running',
+  });
+});
 
 // ==========================================
 // API Routes
 // ==========================================
-app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 
 // ==========================================
 // 404 Handler
@@ -60,7 +72,7 @@ app.use((req: Request, res: Response) => {
 // Global Error Handler
 // ==========================================
 app.use(
-  (err: Error, req: Request, res: Response, _next: NextFunction) => {
+  (err: Error, _req: Request, res: Response, _next: NextFunction) => {
     logger.error('Unhandled error:', err);
 
     const statusCode = (err as any).statusCode || 500;

@@ -15,6 +15,7 @@ async function startServer(): Promise<void> {
       logger.info(`🚀 Server running on http://localhost:${PORT}`);
       logger.info(`📋 Environment: ${env.NODE_ENV}`);
       logger.info(`🔗 CORS enabled for: ${env.CORS_ORIGIN}`);
+      logger.info(`🔐 Authentication (Phase 2) enabled`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);

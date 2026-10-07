@@ -1,37 +1,38 @@
 version: '3.8'
 
 services:
-  # MongoDB Database
+  # MongoDB - Primary Database
   mongodb:
     image: mongo:7.0
     container_name: documind-mongodb
+    restart: unless-stopped
     ports:
-      - '27017:27017'
+      - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: documind-ai
     volumes:
       - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
     networks:
       - documind-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
 
-  # Qdrant Vector Database (for future use in Phase 2+)
+  # Qdrant - Vector Database (for Phase 3+)
   qdrant:
     image: qdrant/qdrant:latest
     container_name: documind-qdrant
+    restart: unless-stopped
     ports:
-      - '6333:6333'
+      - "6333:6333"
+      - "6334:6334"
     volumes:
       - qdrant_data:/qdrant/storage
-    environment:
-      QDRANT_API_KEY: documind-ai-key
     networks:
       - documind-network
     healthcheck:
@@ -39,13 +40,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
 
 volumes:
   mongodb_data:
-    driver: local
+  mongodb_config:
   qdrant_data:
-    driver: local
 
 networks:
   documind-network:

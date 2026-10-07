@@ -1,298 +1,517 @@
-# 📄 DocuMind AI
+# DocuMind AI
 
-**AI-powered Document Intelligence Platform with RAG Capabilities**
+An AI-powered document intelligence platform for intelligent document processing, analysis, and management.
 
----
+## Project Status
 
-## 📋 Table of Contents
+**Phase 2: Authentication & User Management** ✅ Complete
 
-- [Project Overview](#project-overview)
-- [Problem Statement](#problem-statement)
-- [Core Features (Planned)](#core-features-planned)
-- [Technology Stack](#technology-stack)
-- [Architecture Overview](#architecture-overview)
-- [Current Development Phase](#current-development-phase)
-- [Local Development Setup](#local-development-setup)
-- [Environment Variables](#environment-variables)
-- [Available Scripts](#available-scripts)
-- [Project Structure](#project-structure)
-- [Future Phases](#future-phases)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## 🎯 Project Overview
-
-**DocuMind AI** is a production-grade AI document intelligence platform designed to help users extract insights from documents using advanced natural language processing and retrieval-augmented generation (RAG) techniques.
-
-The platform enables organizations to:
-- Upload and process PDF, DOCX, and TXT documents
-- Extract and chunk document content intelligently
-- Generate vector embeddings for semantic search
-- Ask natural language questions about documents
-- Retrieve relevant content with AI-powered answers
-- Compare documents and generate summaries
-- Search across multiple documents with RAG
-
----
-
-## 🔍 Problem Statement
-
-Many organizations struggle with:
-1. **Information Overload** — Managing large document repositories
-2. **Search Limitations** — Keyword-only search doesn't capture meaning
-3. **Manual Extraction** — Time-consuming extraction and summarization
-4. **Lack of Context** — Limited ability to ask questions across documents
-5. **Citation Challenges** — Difficulty tracking document sources for answers
-
-DocuMind AI solves these problems by combining modern AI with vector search to provide intelligent document analysis and retrieval.
-
----
-
-## ✨ Core Features (Planned)
-
-### Phase 2+: Authentication & User Management
-- User registration and login
-- JWT-based authentication
-- User session management
-
-### Phase 2+: Document Processing
-- PDF, DOCX, TXT file upload
-- Text extraction from documents
-- Intelligent document chunking
-- Document metadata storage
-
-### Phase 3+: AI & Embeddings
-- Vector embedding generation
-- Semantic document search
-- Qdrant vector database integration
-- Embedding storage and retrieval
-
-### Phase 4+: RAG & Chat
-- Retrieval-augmented generation (RAG)
-- Document-aware AI chat
-- Citation tracking
-- Context-aware responses
-
-### Phase 5+: Advanced Analytics
-- Document summarization
-- Document comparison
-- Cross-document search
-- Analytics and insights
-
----
-
-## 🛠️ Technology Stack
+## Tech Stack
 
 ### Frontend
-- **React 18** — UI library
-- **Vite** — Build tool & dev server
-- **TypeScript** — Type safety
-- **Tailwind CSS** — Styling
-- **React Router** — Client-side routing
-- **TanStack Query** — Data fetching & caching
-- **Axios** — HTTP client
+- **React 18** - UI framework
+- **Vite** - Build tool with HMR
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **Axios** - HTTP client with interceptors
+- **React Router** - Client-side routing
+- **React Context API** - State management
 
 ### Backend
-- **Node.js** — Runtime
-- **Express.js** — Web framework
-- **TypeScript** — Type safety
-- **Zod** — Schema validation
-- **Mongoose** — MongoDB ODM
-- **Helmet** — Security headers
-- **Morgan** — Request logging
-- **CORS** — Cross-origin resource sharing
+- **Node.js** - Runtime environment
+- **Express.js** - Web framework
+- **TypeScript** - Type-safe JavaScript
+- **MongoDB** - NoSQL database
+- **Mongoose** - ODM for MongoDB
+- **JWT (JSON Web Tokens)** - Authentication
+- **bcryptjs** - Password hashing
+- **Zod** - Runtime schema validation
 
-### Database & Infrastructure
-- **MongoDB** — Primary database
-- **Qdrant** — Vector database (Phase 2+)
-- **Ollama** — Local LLM provider (Phase 3+)
-- **Docker** — Containerization
-- **Docker Compose** — Local development orchestration
+### Infrastructure
+- **Docker & Docker Compose** - Containerization
+- **MongoDB** - Primary database
+- **Qdrant** - Vector database (prepared for Phase 3+)
 
----
-
-## 🏗️ Architecture Overview
+## Project Structure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     React Frontend                          │
-│         (Vite, TypeScript, Tailwind, React Router)         │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ↓
-┌─────────────────────────────────────────────────────────────┐
-│                Node.js Express Backend                      │
-│        (TypeScript, Zod, Helmet, Morgan, CORS)             │
-└────────┬──────────────┬──────────────────┬──────────────────┘
-         │              │                  │
-         ↓              ↓                  ↓
-    ┌─────────┐    ┌──────────┐    ┌────────────────┐
-    │ MongoDB │    │  Qdrant  │    │ Ollama (LLM)   │
-    │(Phase 1)│    │(Phase 2+)│    │  (Phase 3+)    │
-    └─────────┘    └──────────┘    └────────────────┘
+documind-ai/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   │   └── ProtectedRoute.tsx
+│   │   ├── contexts/       # React Context for state management
+│   │   │   └── auth.context.tsx
+│   │   ├── hooks/          # Custom React hooks
+│   │   │   └── useAuth.ts
+│   │   ├── pages/          # Page components
+│   │   │   ├── Login.tsx
+│   │   │   ├── Register.tsx
+│   │   │   └── Dashboard.tsx
+│   │   ├── services/       # API services
+│   │   │   └── api.ts
+│   │   ├── App.tsx         # Main app component with routing
+│   │   ├── main.tsx        # React entry point
+│   │   └── index.css       # Tailwind styles
+│   ├── index.html          # HTML entry point
+│   ├── package.json        # Dependencies
+│   ├── vite.config.ts      # Vite configuration
+│   ├── tsconfig.json       # TypeScript configuration
+│   ├── tailwind.config.js  # Tailwind configuration
+│   └── eslint.config.cjs   # ESLint configuration
+│
+├── server/                 # Express backend
+│   ├── src/
+│   │   ├── config/         # Configuration
+│   │   │   ├── environment.ts
+│   │   │   └── database.ts
+│   │   ├── controllers/    # Route handlers
+│   │   │   └── auth.controller.ts
+│   │   ├── middleware/     # Express middleware
+│   │   │   └── auth.middleware.ts
+│   │   ├── models/         # Mongoose schemas
+│   │   │   └── user.model.ts
+│   │   ├── routes/         # API routes
+│   │   │   └── auth.routes.ts
+│   │   ├── services/       # Business logic
+│   │   │   └── auth.service.ts
+│   │   ├── types/          # TypeScript types
+│   │   │   ├── auth.types.ts
+│   │   │   └── index.ts
+│   │   ├── utils/          # Utility functions
+│   │   │   ├── jwt.ts
+│   │   │   ├── password.ts
+│   │   │   ├── logger.ts
+│   │   │   └── response.ts
+│   │   ├── constants/      # Constants
+│   │   │   └── index.ts
+│   │   ├── app.ts          # Express app setup
+│   │   └── server.ts       # Server entry point
+│   ├── package.json        # Dependencies
+│   ├── tsconfig.json       # TypeScript configuration
+│   └── eslint.config.cjs   # ESLint configuration
+│
+├── docker-compose.yml      # Docker services configuration
+├── .env.example            # Environment variables template
+├── .gitignore              # Git ignore rules
+└── README.md               # This file
 
-Application Services:
-├── Authentication (Phase 2+)
-├── Document Processing (Phase 2+)
-├── Document Storage (Phase 1)
-├── Embedding Generation (Phase 3+)
-├── Vector Search (Phase 3+)
-├── RAG Service (Phase 4+)
-└── Analytics (Phase 5+)
 ```
 
----
+## Phase 2: Authentication & User Management
 
-## 🚀 Current Development Phase
+### Features Implemented
 
-### **Phase 1 — Project Foundation & Architecture** ✅
+#### Backend Authentication
+- ✅ User registration with email and password
+- ✅ User login with credentials validation
+- ✅ JWT access token (15-minute expiry)
+- ✅ Refresh token in httpOnly cookie (7-day expiry)
+- ✅ Automatic token refresh on 401 responses
+- ✅ Password hashing with bcryptjs (10 salt rounds)
+- ✅ Password strength validation (8+ chars, uppercase, lowercase, number)
+- ✅ User profile retrieval (GET /auth/me)
+- ✅ Logout functionality
 
-**Status:** In Development
+#### Security Features
+- ✅ httpOnly cookies for refresh tokens (prevents XSS attacks)
+- ✅ Secure cookie configuration (sameSite: strict, secure in production)
+- ✅ Bearer token authentication in Authorization header
+- ✅ Role-based access control (USER/ADMIN)
+- ✅ Generic error messages for failed login (no user enumeration)
+- ✅ Helmet.js for security headers
+- ✅ CORS configuration
+- ✅ Input validation with Zod schema
 
-This phase focuses on creating a clean, scalable monorepo foundation with:
-- ✅ Monorepo structure (client/server/docs)
-- ✅ React + Vite + TypeScript frontend setup
-- ✅ Express + TypeScript backend setup
-- ✅ MongoDB configuration (future phases)
-- ✅ Docker development environment
-- ✅ TypeScript strict mode
-- ✅ Professional documentation
-- ✅ Health check endpoint
-- ✅ Error handling middleware
-- ✅ Environment configuration
-- ✅ CORS & security setup
+#### Frontend Authentication
+- ✅ Login page with email/password form
+- ✅ Register page with validation
+- ✅ Dashboard page (protected route)
+- ✅ ProtectedRoute component for client-side route protection
+- ✅ Authentication context for state management
+- ✅ Axios interceptors for automatic token refresh
+- ✅ Custom auth hooks (useLogin, useRegister, useLogout, useCurrentUser)
+- ✅ Session persistence with sessionStorage
+- ✅ Loading states and error handling
 
-**What's NOT included in Phase 1:**
-- ❌ Authentication/JWT
-- ❌ User management
-- ❌ File upload
-- ❌ Document processing
-- ❌ Embeddings
-- ❌ Vector search
-- ❌ Ollama integration
-- ❌ Qdrant integration
-- ❌ RAG functionality
-- ❌ AI chat
+### API Endpoints
 
----
+#### Authentication Routes (Base: `/api/auth`)
 
-## 📦 Local Development Setup
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/register` | Register new user | No |
+| POST | `/login` | Login user | No |
+| POST | `/refresh` | Refresh access token | No |
+| POST | `/logout` | Logout user | No |
+| GET | `/me` | Get current user profile | Yes |
+
+#### Request/Response Examples
+
+**POST /auth/register**
+```json
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "password": "SecurePassword123"
+}
+```
+
+Response (201):
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "user": {
+      "id": "user123",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "role": "USER",
+      "isActive": true,
+      "createdAt": "2024-01-15T10:30:00Z"
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+**POST /auth/login**
+```json
+{
+  "email": "john@example.com",
+  "password": "SecurePassword123"
+}
+```
+
+Response (200):
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "id": "user123",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "role": "USER",
+      "isActive": true,
+      "createdAt": "2024-01-15T10:30:00Z"
+    },
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+**GET /auth/me** (with Authorization header)
+```
+Headers: Authorization: Bearer <accessToken>
+```
+
+Response (200):
+```json
+{
+  "success": true,
+  "message": "User profile retrieved",
+  "data": {
+    "user": {
+      "id": "user123",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "role": "USER",
+      "isActive": true,
+      "createdAt": "2024-01-15T10:30:00Z"
+    }
+  }
+}
+```
+
+## Getting Started
 
 ### Prerequisites
-
-- **Node.js** >= 18.0.0
-- **npm** >= 9.0.0
-- **Docker** & **Docker Compose** (for containerized development)
-- **MongoDB** (running via Docker Compose or locally)
+- Node.js 18+ 
+- npm or yarn
+- Docker & Docker Compose (for database)
+- MongoDB (via Docker)
 
 ### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/documind-ai.git
-   cd documind-ai
-   ```
+```bash
+git clone <repository-url>
+cd documind-ai
+```
+
+2. **Setup environment variables**
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+3. **Start MongoDB and Qdrant with Docker**
+```bash
+docker-compose up -d
+```
+
+### Backend Setup
+
+1. **Navigate to server directory**
+```bash
+cd server
+```
 
 2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-   This installs dependencies for both client and server using npm workspaces.
+3. **Run development server**
+```bash
+npm run dev
+```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
+The backend will start on `http://localhost:5000`
 
-   Edit `.env` with your configuration values.
+4. **Health check**
+```bash
+curl http://localhost:5000/api/health
+```
 
-4. **Start MongoDB (using Docker)**
-   ```bash
-   npm run docker-up
-   ```
+### Frontend Setup
 
-   This starts MongoDB and Qdrant (for future use) using Docker Compose.
+1. **Navigate to client directory** (in a new terminal)
+```bash
+cd client
+```
 
-5. **Start development servers**
-   ```bash
-   npm run dev
-   ```
+2. **Install dependencies**
+```bash
+npm install
+```
 
-   This starts both frontend and backend in development mode.
+3. **Run development server**
+```bash
+npm run dev
+```
 
-   - **Frontend:** http://localhost:5173
-   - **Backend API:** http://localhost:5000
+The frontend will start on `http://localhost:5173`
 
----
+### Accessing the Application
 
-## 🌍 Environment Variables
+1. Open http://localhost:5173 in your browser
+2. Click "Sign up" to register a new account
+3. Fill in the registration form with valid credentials
+4. Log in with your credentials
+5. You'll be redirected to the dashboard
 
-Copy `.env.example` to `.env` and configure:
+## Authentication Flow
 
-```env
-# Application
+### Registration Flow
+```
+User fills registration form
+    ↓
+Client validates password strength
+    ↓
+POST /auth/register
+    ↓
+Server validates input with Zod
+    ↓
+Server checks duplicate email
+    ↓
+Server hashes password with bcryptjs
+    ↓
+Server creates user in MongoDB
+    ↓
+Server generates JWT access token
+    ↓
+Server sets httpOnly refresh token cookie
+    ↓
+Server returns user + accessToken
+    ↓
+Client stores accessToken in sessionStorage
+    ↓
+Client sets auth context
+    ↓
+Redirect to dashboard
+```
+
+### Login Flow
+```
+User enters email/password
+    ↓
+POST /auth/login
+    ↓
+Server validates input
+    ↓
+Server finds user by email
+    ↓
+Server checks if user is active
+    ↓
+Server compares password with hash
+    ↓
+Server generates JWT token pair
+    ↓
+Server sets httpOnly refresh token cookie
+    ↓
+Server returns user + accessToken
+    ↓
+Client stores accessToken in sessionStorage
+    ↓
+Client sets auth context
+    ↓
+Redirect to dashboard
+```
+
+### Token Refresh Flow
+```
+Client makes API request with accessToken
+    ↓
+Server validates token
+    ↓
+If token expired (401):
+    ↓
+    Client reads refreshToken from cookie
+    ↓
+    POST /auth/refresh
+    ↓
+    Server verifies refreshToken
+    ↓
+    Server generates new accessToken
+    ↓
+    Server returns new accessToken
+    ↓
+    Client updates sessionStorage with new token
+    ↓
+    Client retries original request
+    ↓
+If refreshToken invalid:
+    ↓
+    Server clears cookie
+    ↓
+    Client clears sessionStorage
+    ↓
+    Client redirects to /login
+```
+
+## Testing Authentication
+
+### Test Checklist
+
+#### Registration Tests
+- ✓ Register with valid credentials
+- ✓ Register with duplicate email (should fail)
+- ✓ Register with weak password (should fail)
+- ✓ Register with missing required fields (should fail)
+- ✓ Verify user created in MongoDB with USER role
+- ✓ Verify password is hashed (not plain text)
+
+#### Login Tests
+- ✓ Login with valid credentials
+- ✓ Login with invalid email (generic error message)
+- ✓ Login with invalid password (generic error message)
+- ✓ Login with unverified/inactive account
+- ✓ Verify accessToken and refreshToken are returned
+
+#### Token Tests
+- ✓ Access protected route with valid token
+- ✓ Access protected route with expired token (auto-refresh)
+- ✓ Access protected route with invalid token (401 error)
+- ✓ Token refresh with valid refreshToken
+- ✓ Token refresh with invalid/expired refreshToken
+
+#### Security Tests
+- ✓ Verify refreshToken is httpOnly (not accessible from JavaScript)
+- ✓ Verify password is never returned in API responses
+- ✓ Verify generic error messages on login failure (no user enumeration)
+- ✓ Verify CORS is properly configured
+
+### Manual Testing with cURL
+
+**Register User**
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "password": "SecurePassword123"
+  }'
+```
+
+**Login User**
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -c cookies.txt \
+  -d '{
+    "email": "john@example.com",
+    "password": "SecurePassword123"
+  }'
+```
+
+**Access Protected Route**
+```bash
+curl -X GET http://localhost:5000/api/auth/me \
+  -H "Authorization: Bearer <accessToken>" \
+  -b cookies.txt
+```
+
+**Logout**
+```bash
+curl -X POST http://localhost:5000/api/auth/logout \
+  -b cookies.txt
+```
+
+## Environment Variables
+
+### Backend (.env)
+```
 NODE_ENV=development
 PORT=5000
-CLIENT_URL=http://localhost:5173
-
-# Database
-MONGODB_URI=mongodb://root:password@localhost:27017/documind-ai?authSource=admin
-
-# Logging
 LOG_LEVEL=info
 
-# CORS
-CORS_ORIGIN=http://localhost:5173
+MONGODB_URI=mongodb://admin:password@localhost:27017/documind-ai?authSource=admin
 
-# Future phases
-JWT_ACCESS_SECRET=your_secret_here
-OLLAMA_BASE_URL=http://localhost:11434
-QDRANT_URL=http://localhost:6333
+JWT_ACCESS_SECRET=your-secret-key-change-in-production
+JWT_REFRESH_SECRET=your-refresh-secret-change-in-production
+JWT_ACCESS_EXPIRY=15m
+JWT_REFRESH_EXPIRY=7d
+
+CLIENT_URL=http://localhost:5173
 ```
 
-**⚠️ IMPORTANT:** Never commit `.env` with real secrets. Use `.env.example` as a template.
+## Development Commands
 
----
-
-## 📜 Available Scripts
-
-### Root Level
-
+### Backend
 ```bash
-# Start both client and server in parallel
+cd server
+
+# Development server with hot reload
 npm run dev
 
-# Start only frontend
-npm run client
-
-# Start only backend
-npm run server
-
-# Build both projects
+# Production build
 npm run build
 
-# Run linters
+# Start production server
+npm start
+
+# Lint code
 npm run lint
 
-# Type check all projects
+# Type check
 npm run type-check
-
-# Start Docker containers
-npm run docker-up
-
-# Stop Docker containers
-npm run docker-down
 ```
 
-### Client Only
-
+### Frontend
 ```bash
 cd client
 
-# Development server
+# Development server with HMR
 npm run dev
 
 # Production build
@@ -303,177 +522,114 @@ npm run preview
 
 # Lint code
 npm run lint
-
-# Type check
-npm run type-check
 ```
 
-### Server Only
+## MongoDB Connection
 
+The application uses MongoDB with authentication. Connection details:
+- **Host:** localhost
+- **Port:** 27017
+- **Database:** documind-ai
+- **Username:** admin
+- **Password:** password (change in production)
+
+To connect to MongoDB directly:
 ```bash
-cd server
-
-# Development server (with hot reload)
-npm run dev
-
-# Compile TypeScript
-npm run build
-
-# Start production server
-npm run start
-
-# Lint code
-npm run lint
-
-# Type check
-npm run type-check
+mongosh "mongodb://admin:password@localhost:27017/documind-ai?authSource=admin"
 ```
 
----
+## Security Best Practices Implemented
 
-## 📁 Project Structure
+1. **Password Security**
+   - Bcryptjs with 10 salt rounds
+   - Password strength validation (8+ chars, uppercase, lowercase, number)
+   - Passwords never stored or returned in API responses
 
+2. **Token Security**
+   - JWT access tokens with 15-minute expiry
+   - Refresh tokens in httpOnly cookies (7-day expiry)
+   - Automatic token rotation on refresh
+
+3. **API Security**
+   - CORS configured for frontend origin
+   - Helmet.js security headers
+   - Input validation with Zod
+   - Generic error messages (no user enumeration)
+   - Rate limiting ready (to be implemented)
+
+4. **Frontend Security**
+   - sessionStorage for access token (cleared on browser close)
+   - httpOnly cookies for refresh token
+   - Protected routes with ProtectedRoute component
+   - Automatic redirect on token expiration
+
+## Known Limitations
+
+- Phase 2 focuses on authentication only
+- No email verification implemented (Phase 3+)
+- No password reset functionality (Phase 3+)
+- No two-factor authentication (Phase 3+)
+- No rate limiting on login attempts (Phase 3+)
+- No session management UI (Phase 3+)
+
+## Next Phases
+
+**Phase 3: Document Processing & AI Integration**
+- Document upload and storage
+- PDF/Document parsing
+- OCR and text extraction
+- AI-powered document analysis
+- Vector embeddings with Qdrant
+- Search and retrieval
+
+**Phase 4: Advanced Features**
+- Document collaboration
+- Real-time updates
+- Advanced analytics
+- Custom document workflows
+- Integration with external services
+
+## Troubleshooting
+
+### MongoDB Connection Error
 ```
-documind-ai/
-│
-├── client/                          # React frontend
-│   ├── src/
-│   │   ├── components/              # Reusable UI components
-│   │   ├── pages/                   # Page components
-│   │   ├── layouts/                 # Layout components
-│   │   ├── hooks/                   # Custom React hooks
-│   │   ├── services/                # API services
-│   │   ├── store/                   # State management
-│   │   ├── utils/                   # Utility functions
-│   │   ├── types/                   # TypeScript types
-│   │   ├── constants/               # Application constants
-│   │   ├── App.tsx                  # Root component
-│   │   ├── main.tsx                 # Entry point
-│   │   └── index.css                # Global styles
-│   │
-│   ├── public/                      # Static assets
-│   ├── index.html
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── vite.config.ts
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   └── .eslintrc.cjs
-│
-├── server/                          # Express backend
-│   ├── src/
-│   │   ├── config/                  # Configuration files
-│   │   ├── controllers/             # Request handlers
-│   │   ├── middleware/              # Express middleware
-│   │   ├── models/                  # Mongoose models
-│   │   ├── routes/                  # API routes
-│   │   ├── services/                # Business logic
-│   │   ├── utils/                   # Utility functions
-│   │   ├── types/                   # TypeScript types
-│   │   ├── constants/               # Application constants
-│   │   ├── app.ts                   # Express app
-│   │   └── server.ts                # Entry point
-│   │
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── .eslintrc.cjs
-│
-├── docs/                            # Documentation
-│   ├── architecture/
-│   │   └── system-architecture.md
-│   ├── api/
-│   │   └── api-overview.md
-│   └── decisions/
-│       └── technology-decisions.md
-│
-├── docker-compose.yml               # Docker setup
-├── .env.example                     # Environment template
-├── .gitignore
-├── package.json                     # Root workspace config
-└── README.md                        # This file
+Error: MongooseError: Cannot connect to MongoDB
+```
+**Solution:** Ensure Docker containers are running:
+```bash
+docker-compose up -d
+docker-compose ps
 ```
 
----
+### CORS Error
+```
+Access to XMLHttpRequest blocked by CORS policy
+```
+**Solution:** Ensure `CLIENT_URL` in `.env` matches your frontend URL (http://localhost:5173)
 
-## 🔮 Future Phases
+### Token Expiry Issues
+```
+401 Unauthorized
+```
+**Solution:** Check that:
+1. Token is included in Authorization header
+2. Token hasn't expired (15 min for access token)
+3. Refresh token cookie is being sent with requests
 
-### Phase 2 — Authentication & User Management
-- User registration/login system
-- JWT token management
-- User profiles
-- Secure session handling
+### Port Already in Use
+```
+Error: listen EADDRINUSE: address already in use :::5000
+```
+**Solution:** Change the PORT in `.env` or kill the process using port 5000
 
-### Phase 3 — Document Processing & Embeddings
-- Document upload (PDF/DOCX/TXT)
-- Text extraction
-- Smart chunking
-- Vector embedding generation
-- Qdrant integration
+## Contributing
 
-### Phase 4 — RAG & Intelligent Search
-- Retrieval-augmented generation
-- Document-aware chat
-- Citation tracking
-- Context-aware responses
-- Ollama LLM integration
+Instructions for contributing to the project (to be added)
 
-### Phase 5 — Advanced Features
-- Document summarization
-- Document comparison
-- Multi-document search
-- Analytics & insights
-- Export capabilities
+## License
 
-### Phase 6+ — Enterprise Features
-- Team collaboration
-- Document sharing
-- Advanced permissions
-- Audit logging
-- API for third-party integration
+MIT
 
----
+## Support
 
-## 🤝 Contributing
-
-This is a portfolio project demonstrating professional MERN development practices.
-
-### Code Standards
-- **TypeScript Strict Mode** — All code must pass strict type checking
-- **ESLint** — Follow project linting rules
-- **Prettier** — Format code consistently
-- **No Unused Dependencies** — Clean dependency management
-- **Clean Architecture** — Modular, maintainable code
-- **Comprehensive Documentation** — Self-documenting code and comments
-
-### Commit Guidelines
-- Use descriptive commit messages
-- Reference the phase and feature being worked on
-- Example: `feat(phase-2): add user authentication`
-
----
-
-## 📄 License
-
-MIT License — See LICENSE file for details
-
----
-
-## 📞 Support
-
-For questions or issues:
-1. Check the documentation in `/docs`
-2. Review the architecture overview
-3. Check existing issues
-4. Create a new issue with detailed information
-
----
-
-## 🙏 Acknowledgments
-
-Built with modern web development best practices and professional-grade architecture patterns.
-
----
-
-**Last Updated:** October 4, 2026  
-**Current Phase:** 1 (Foundation & Architecture)  
-**Status:** 🚀 In Development
+For issues and questions, please open an issue on the repository.
