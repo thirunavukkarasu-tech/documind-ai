@@ -80,4 +80,54 @@ export const authAPI = {
   },
 };
 
+// Document API calls
+export const documentAPI = {
+  uploadDocument: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post('/documents', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data;
+  },
+
+  listDocuments: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    type?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) => {
+    const response = await api.get('/documents', { params });
+    return response.data.data;
+  },
+
+  getDocument: async (id: string) => {
+    const response = await api.get(`/documents/${id}`);
+    return response.data.data;
+  },
+
+  renameDocument: async (id: string, name: string) => {
+    const response = await api.patch(`/documents/${id}`, { name });
+    return response.data.data;
+  },
+
+  deleteDocument: async (id: string) => {
+    const response = await api.delete(`/documents/${id}`);
+    return response.data;
+  },
+
+  downloadDocument: async (id: string) => {
+    const response = await api.get(`/documents/${id}/download`, {
+      responseType: 'blob',
+    });
+    return response;
+  },
+};
+
 export default api;

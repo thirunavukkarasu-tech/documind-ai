@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Documents from './pages/Documents';
 
 const App: React.FC = () => {
   return (
@@ -24,12 +25,20 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/documents"
+            element={
+              <ProtectedRoute>
+                <Documents />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* Redirect root to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Redirect root to documents */}
+          <Route path="/" element={<Navigate to="/documents" replace />} />
 
-          {/* 404 - Redirect to dashboard */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* 404 - Redirect to documents */}
+          <Route path="*" element={<Navigate to="/documents" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

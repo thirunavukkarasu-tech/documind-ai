@@ -5,6 +5,7 @@ An AI-powered document intelligence platform for intelligent document processing
 ## Project Status
 
 **Phase 2: Authentication & User Management** ✅ Complete
+**Phase 3: Document Upload & Management** ✅ Complete
 
 ## Tech Stack
 
@@ -26,11 +27,12 @@ An AI-powered document intelligence platform for intelligent document processing
 - **JWT (JSON Web Tokens)** - Authentication
 - **bcryptjs** - Password hashing
 - **Zod** - Runtime schema validation
+- **Multer** - File upload handling (Phase 3)
 
 ### Infrastructure
 - **Docker & Docker Compose** - Containerization
 - **MongoDB** - Primary database
-- **Qdrant** - Vector database (prepared for Phase 3+)
+- **Qdrant** - Vector database (prepared for Phase 4+)
 
 ## Project Structure
 
@@ -39,15 +41,19 @@ documind-ai/
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
-│   │   │   └── ProtectedRoute.tsx
+│   │   │   ├── ProtectedRoute.tsx
+│   │   │   ├── DocumentList.tsx    # Phase 3
+│   │   │   └── UploadModal.tsx     # Phase 3
 │   │   ├── contexts/       # React Context for state management
 │   │   │   └── auth.context.tsx
 │   │   ├── hooks/          # Custom React hooks
-│   │   │   └── useAuth.ts
+│   │   │   ├── useAuth.ts
+│   │   │   └── useDocuments.ts     # Phase 3
 │   │   ├── pages/          # Page components
 │   │   │   ├── Login.tsx
 │   │   │   ├── Register.tsx
-│   │   │   └── Dashboard.tsx
+│   │   │   ├── Dashboard.tsx
+│   │   │   └── Documents.tsx       # Phase 3
 │   │   ├── services/       # API services
 │   │   │   └── api.ts
 │   │   ├── App.tsx         # Main app component with routing
@@ -66,15 +72,22 @@ documind-ai/
 │   │   │   ├── environment.ts
 │   │   │   └── database.ts
 │   │   ├── controllers/    # Route handlers
-│   │   │   └── auth.controller.ts
+│   │   │   ├── auth.controller.ts
+│   │   │   └── document.controller.ts     # Phase 3
 │   │   ├── middleware/     # Express middleware
 │   │   │   └── auth.middleware.ts
 │   │   ├── models/         # Mongoose schemas
-│   │   │   └── user.model.ts
+│   │   │   ├── user.model.ts
+│   │   │   └── document.model.ts          # Phase 3
 │   │   ├── routes/         # API routes
-│   │   │   └── auth.routes.ts
+│   │   │   ├── auth.routes.ts
+│   │   │   └── document.routes.ts         # Phase 3
 │   │   ├── services/       # Business logic
-│   │   │   └── auth.service.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── document.service.ts        # Phase 3
+│   │   │   └── storage/                   # Phase 3
+│   │   │       ├── storage.service.ts     # Phase 3 (interface)
+│   │   │       └── local-storage.service.ts # Phase 3
 │   │   ├── types/          # TypeScript types
 │   │   │   ├── auth.types.ts
 │   │   │   └── index.ts
@@ -82,7 +95,8 @@ documind-ai/
 │   │   │   ├── jwt.ts
 │   │   │   ├── password.ts
 │   │   │   ├── logger.ts
-│   │   │   └── response.ts
+│   │   │   ├── response.ts
+│   │   │   └── file-validation.ts        # Phase 3
 │   │   ├── constants/      # Constants
 │   │   │   └── index.ts
 │   │   ├── app.ts          # Express app setup
@@ -227,6 +241,171 @@ Response (200):
       "createdAt": "2024-01-15T10:30:00Z"
     }
   }
+}
+```
+
+## Phase 3: Document Upload & Management
+
+### Features Implemented
+
+#### Backend Document Management
+- ✅ Document upload (PDF, TXT, DOCX files)
+- ✅ File validation (MIME type + extension verification)
+- ✅ Safe file storage with path traversal protection
+- ✅ User ownership enforcement (database-level)
+- ✅ Document metadata storage (name, size, type, status, dates)
+- ✅ Paginated document listing (max 100 items/page)
+- ✅ MongoDB text search by document name
+- ✅ Filter by status (UPLOADED, PROCESSING, READY, FAILED)
+- ✅ Filter by file type (PDF, TXT, DOCX)
+- ✅ Sort by created date, name, or file size
+- ✅ Document rename with validation
+- ✅ Safe document deletion (file + database)
+- ✅ Download with proper Content-Type and streaming
+
+#### Storage Architecture
+- ✅ Storage abstraction interface (supports local FS, S3, Cloudinary, etc.)
+- ✅ Local filesystem implementation with userId-based organization
+- ✅ Safe filename generation: `{userId}_{timestamp}.{extension}`
+- ✅ Automatic directory creation per user
+- ✅ Path traversal attack prevention
+
+#### Frontend Document Management
+- ✅ Documents page as main authenticated interface
+- ✅ Drag-and-drop file upload modal
+- ✅ File type validation before upload (PDF/TXT/DOCX, max 20MB)
+- ✅ Document list with sortable table
+- ✅ Inline rename with save/cancel
+- ✅ Delete confirmation modal
+- ✅ Download functionality with blob handling
+- ✅ Search documents by name
+- ✅ Filter by status and file type
+- ✅ Sort by date, name, or size
+- ✅ Pagination with previous/next/page numbers
+- ✅ Items per page selector (10/25/50)
+- ✅ Loading states and error handling
+- ✅ Empty state messaging
+
+#### Security Features
+- ✅ User ownership validation at database level
+- ✅ Path traversal protection with `path.resolve()`
+- ✅ MIME type and file extension matching
+- ✅ JWT authentication on all document endpoints
+- ✅ File size limits (configurable, default 20MB)
+- ✅ Safe filename generation with timestamps
+- ✅ Database indexes for optimal query performance
+
+### API Endpoints
+
+#### Document Routes (Base: `/api/documents`)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/` | Upload document | Yes |
+| GET | `/` | List documents (paginated) | Yes |
+| GET | `/:id` | Get document details | Yes |
+| PATCH | `/:id` | Rename document | Yes |
+| DELETE | `/:id` | Delete document | Yes |
+| GET | `/:id/download` | Download document file | Yes |
+
+### Request/Response Examples
+
+**POST /documents** (Upload)
+```bash
+curl -X POST http://localhost:5000/api/documents \
+  -H "Authorization: Bearer TOKEN" \
+  -F "file=@document.pdf"
+```
+
+Response (201):
+```json
+{
+  "success": true,
+  "message": "Document uploaded successfully",
+  "data": {
+    "id": "doc123",
+    "originalName": "document.pdf",
+    "storedName": "userId_1696679200000.pdf",
+    "mimeType": "application/pdf",
+    "size": 2048576,
+    "status": "UPLOADED",
+    "pageCount": 0,
+    "createdAt": "2024-10-07T08:00:00Z",
+    "updatedAt": "2024-10-07T08:00:00Z"
+  }
+}
+```
+
+**GET /documents** (List with filters)
+```bash
+curl -X GET 'http://localhost:5000/api/documents?page=1&limit=10&search=invoice&status=READY&sortBy=createdAt&sortOrder=desc' \
+  -H "Authorization: Bearer TOKEN"
+```
+
+Response (200):
+```json
+{
+  "success": true,
+  "message": "Documents retrieved successfully",
+  "data": {
+    "documents": [
+      {
+        "id": "doc123",
+        "originalName": "invoice.pdf",
+        "mimeType": "application/pdf",
+        "size": 2048576,
+        "status": "READY",
+        "pageCount": 15,
+        "createdAt": "2024-10-07T08:00:00Z",
+        "updatedAt": "2024-10-07T08:30:00Z"
+      }
+    ],
+    "pagination": {
+      "currentPage": 1,
+      "limit": 10,
+      "total": 42,
+      "totalPages": 5
+    }
+  }
+}
+```
+
+**PATCH /documents/:id** (Rename)
+```bash
+curl -X PATCH http://localhost:5000/api/documents/doc123 \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "invoice-2024.pdf"}'
+```
+
+Response (200):
+```json
+{
+  "success": true,
+  "message": "Document renamed successfully",
+  "data": {
+    "id": "doc123",
+    "originalName": "invoice-2024.pdf",
+    "mimeType": "application/pdf",
+    "size": 2048576,
+    "status": "READY",
+    "pageCount": 15,
+    "updatedAt": "2024-10-07T08:30:00Z"
+  }
+}
+```
+
+**DELETE /documents/:id**
+```bash
+curl -X DELETE http://localhost:5000/api/documents/doc123 \
+  -H "Authorization: Bearer TOKEN"
+```
+
+Response (200):
+```json
+{
+  "success": true,
+  "message": "Document deleted successfully"
 }
 ```
 
@@ -574,20 +753,23 @@ mongosh "mongodb://admin:password@localhost:27017/documind-ai?authSource=admin"
 
 ## Next Phases
 
-**Phase 3: Document Processing & AI Integration**
-- Document upload and storage
+**Phase 4: Document Processing & AI Integration**
 - PDF/Document parsing
 - OCR and text extraction
+- Text chunking and preprocessing
 - AI-powered document analysis
 - Vector embeddings with Qdrant
-- Search and retrieval
+- Semantic search and retrieval
+- Q&A with RAG (Retrieval Augmented Generation)
+- Document summarization
 
-**Phase 4: Advanced Features**
+**Phase 5: Advanced Features**
 - Document collaboration
 - Real-time updates
 - Advanced analytics
 - Custom document workflows
 - Integration with external services
+- Export functionality (Markdown, PDF with highlights)
 
 ## Troubleshooting
 

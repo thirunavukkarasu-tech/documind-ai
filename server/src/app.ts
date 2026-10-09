@@ -7,6 +7,7 @@ import { env } from './config/environment';
 import { logger } from './utils/logger';
 import { sendError } from './utils/response';
 import authRoutes from './routes/auth.routes';
+import documentRoutes from './routes/document.routes';
 
 const app: Express = express();
 
@@ -60,6 +61,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // API Routes
 // ==========================================
 app.use('/api/auth', authRoutes);
+app.use('/api/documents', documentRoutes);
 
 // ==========================================
 // 404 Handler

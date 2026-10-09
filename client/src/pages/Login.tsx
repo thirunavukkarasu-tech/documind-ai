@@ -15,7 +15,7 @@ const Login: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate('/documents');
     }
   }, [isAuthenticated, navigate]);
 
@@ -36,7 +36,7 @@ const Login: React.FC = () => {
 
     try {
       await loginUser(email, password);
-      navigate('/dashboard');
+      navigate('/documents');
     } catch {
       // Error is handled by the hook
     }

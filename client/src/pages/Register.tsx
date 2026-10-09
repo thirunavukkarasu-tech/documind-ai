@@ -18,7 +18,7 @@ const Register: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate('/documents');
     }
   }, [isAuthenticated, navigate]);
 
@@ -74,7 +74,7 @@ const Register: React.FC = () => {
 
     try {
       await registerUser(firstName, lastName, email, password);
-      navigate('/dashboard');
+      navigate('/documents');
     } catch {
       // Error is handled by the hook
     }

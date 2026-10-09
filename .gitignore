@@ -53,6 +53,10 @@ mongodb_config/
 # Qdrant
 qdrant_data/
 
+# Uploads
+uploads/
+server/uploads/
+
 # Temporary files
 tmp/
 temp/
