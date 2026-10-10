@@ -7,6 +7,9 @@ import {
   renameDocument,
   deleteDocument,
   downloadDocument,
+  getProcessingStatus,
+  getDocumentChunks,
+  retryProcessing,
 } from '../controllers/document.controller';
 import { requireAuth } from '../middleware/auth.middleware';
 
@@ -41,5 +44,14 @@ router.delete('/:id', deleteDocument);
 
 // Download document
 router.get('/:id/download', downloadDocument);
+
+// Get processing status and metadata
+router.get('/:id/processing-status', getProcessingStatus);
+
+// Get paginated chunks for a document
+router.get('/:id/chunks', getDocumentChunks);
+
+// Retry processing for failed document
+router.post('/:id/retry-processing', retryProcessing);
 
 export default router;

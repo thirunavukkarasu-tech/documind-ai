@@ -12,6 +12,25 @@ export interface Document {
   updatedAt: string;
 }
 
+export interface ProcessingStatus {
+  id: string;
+  status: 'UPLOADED' | 'PROCESSING' | 'READY' | 'FAILED';
+  processingStartedAt: string | null;
+  processingCompletedAt: string | null;
+  processingError: string | null;
+  pageCount: number;
+  extractedCharacterCount: number;
+  chunkCount: number;
+}
+
+export interface DocumentChunk {
+  id: string;
+  index: number;
+  content: string;
+  characterCount: number;
+  pageNumber: number | null;
+}
+
 export interface ListDocumentsParams {
   page?: number;
   limit?: number;
@@ -176,4 +195,80 @@ export const useDownloadDocument = () => {
   }, []);
 
   return { downloadDocument, isLoading, error };
+};
+
+// Phase 4: Document Processing
+export const useGetProcessingStatus = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getProcessingStatus = useCallback(async (id: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await documentAPI.getProcessingStatus(id);
+      return response;
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message || 'Failed to get processing status';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { getProcessingStatus, isLoading, error };
+};
+
+export const useGetDocumentChunks = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getDocumentChunks = useCallback(
+    async (id: string, params?: { page?: number; limit?: number }) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await documentAPI.getDocumentChunks(id, params);
+        return response;
+      } catch (err: any) {
+        const message =
+          err.response?.data?.message || 'Failed to get document chunks';
+        setError(message);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  return { getDocumentChunks, isLoading, error };
+};
+
+export const useRetryProcessing = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const retryProcessing = useCallback(async (id: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await documentAPI.retryProcessing(id);
+      return response;
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message || 'Failed to retry processing';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { retryProcessing, isLoading, error };
 };

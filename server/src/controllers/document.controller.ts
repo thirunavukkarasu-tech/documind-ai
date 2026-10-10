@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { DocumentService } from '../services/document.service';
 import { LocalStorageService } from '../services/storage/local-storage.service';
+import { DocumentProcessingService } from '../services/processing/document-processing.service';
 import { sendSuccess, sendError } from '../utils/response';
 import { logger } from '../utils/logger';
 import { validateFile, generateSafeFilename, sanitizeFilename } from '../utils/file-validation';
@@ -13,10 +14,11 @@ interface AuthenticatedRequest extends Request {
   file?: Express.Multer.File;
 }
 
-// Initialize storage service
+// Initialize services
 const uploadDir = process.env.UPLOAD_DIR || 'uploads';
 const storageService = new LocalStorageService(uploadDir);
 const documentService = new DocumentService(storageService);
+const processingService = new DocumentProcessingService(storageService);
 
 // Validation schemas
 const renameDocumentSchema = z.object({
@@ -69,6 +71,11 @@ export const uploadDocument = async (req: AuthenticatedRequest, res: Response): 
     );
 
     logger.info(`Document uploaded: ${document._id}`);
+
+    // Start processing asynchronously (don't wait for it)
+    processingService.processDocument(document._id.toString()).catch((error) => {
+      logger.error(`Background processing failed for document ${document._id}: ${error}`);
+    });
 
     sendSuccess(
       res,
@@ -225,5 +232,101 @@ export const downloadDocument = async (req: AuthenticatedRequest, res: Response)
     if (!res.headersSent) {
       sendError(res, error.message || ERROR_MESSAGES.DOWNLOAD_FAILED, error, statusCode);
     }
+  }
+};
+
+/**
+ * Get processing status and metadata
+ * GET /api/documents/:id/processing-status
+ */
+export const getProcessingStatus = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    const status = await documentService.getProcessingStatus(id, userId!);
+
+    sendSuccess(res, 'Processing status retrieved', status);
+  } catch (error: any) {
+    logger.error(`Get processing status failed: ${error}`);
+    const statusCode = error.message === 'Document not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.INTERNAL_ERROR;
+    sendError(res, error.message || 'Failed to get processing status', error, statusCode);
+  }
+};
+
+/**
+ * Get paginated chunks for a document
+ * GET /api/documents/:id/chunks?page=1&limit=10
+ */
+export const getDocumentChunks = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    // Validate query parameters
+    const validation = z
+      .object({
+        page: z.coerce.number().min(1).optional(),
+        limit: z.coerce.number().min(1).max(100).optional(),
+      })
+      .safeParse(req.query);
+
+    if (!validation.success) {
+      sendError(res, ERROR_MESSAGES.INVALID_QUERY, validation.error.errors, HTTP_STATUS.BAD_REQUEST);
+      return;
+    }
+
+    const { page = 1, limit = 10 } = validation.data;
+
+    const { chunks, pagination } = await documentService.getDocumentChunks(id, userId!, page, limit);
+
+    sendSuccess(res, 'Document chunks retrieved', {
+      chunks,
+      pagination,
+    });
+  } catch (error: any) {
+    logger.error(`Get document chunks failed: ${error}`);
+    const statusCode = error.message === 'Document not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.INTERNAL_ERROR;
+    sendError(res, error.message || 'Failed to get document chunks', error, statusCode);
+  }
+};
+
+/**
+ * Retry processing for a failed document
+ * POST /api/documents/:id/retry-processing
+ */
+export const retryProcessing = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    // Verify document exists and user owns it
+    const document = await documentService.getDocumentById(id, userId!);
+
+    // Only allow retry if status is FAILED
+    if (document.status !== 'FAILED') {
+      sendError(res, 'Processing can only be retried for documents with FAILED status', undefined, HTTP_STATUS.BAD_REQUEST);
+      return;
+    }
+
+    // Start processing asynchronously
+    processingService.processDocument(id).catch((error) => {
+      logger.error(`Background processing failed for document ${id}: ${error}`);
+    });
+
+    sendSuccess(
+      res,
+      'Processing retry started',
+      {
+        id: document._id,
+        status: document.status,
+        message: 'Document is being reprocessed',
+      },
+      HTTP_STATUS.ACCEPTED
+    );
+  } catch (error: any) {
+    logger.error(`Retry processing failed: ${error}`);
+    const statusCode = error.message === 'Document not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.INTERNAL_ERROR;
+    sendError(res, error.message || 'Failed to retry processing', error, statusCode);
   }
 };

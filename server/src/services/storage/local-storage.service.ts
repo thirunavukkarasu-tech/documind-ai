@@ -102,6 +102,30 @@ export class LocalStorageService implements StorageService {
     return createReadStream(resolvedPath);
   }
 
+  async getBuffer(filepath: string): Promise<Buffer | null> {
+    try {
+      // Prevent path traversal attacks
+      const resolvedPath = path.resolve(filepath);
+      const uploadDirResolved = path.resolve(this.uploadDir);
+
+      if (!resolvedPath.startsWith(uploadDirResolved)) {
+        throw new Error('Invalid file path');
+      }
+
+      if (!fs.existsSync(resolvedPath)) {
+        logger.warn(`File not found: ${filepath}`);
+        return null;
+      }
+
+      const buffer = await fs.promises.readFile(resolvedPath);
+      logger.debug(`File buffer read: ${filepath}`);
+      return buffer;
+    } catch (error) {
+      logger.error(`Failed to read file buffer: ${error}`);
+      throw new Error('Failed to read file');
+    }
+  }
+
   getFilePath(userId: string, filename: string): string {
     return path.join(this.uploadDir, userId, filename);
   }

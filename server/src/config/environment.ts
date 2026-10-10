@@ -17,7 +17,15 @@ const EnvSchema = z.object({
   JWT_ACCESS_EXPIRY: z.string().default('15m'),
   JWT_REFRESH_EXPIRY: z.string().default('7d'),
 
-  // Future phases
+  // File upload (Phase 3)
+  MAX_FILE_SIZE_MB: z.coerce.number().default(20),
+  UPLOAD_DIR: z.string().default('uploads'),
+
+  // Document processing (Phase 4)
+  CHUNK_SIZE: z.coerce.number().default(1000),
+  CHUNK_OVERLAP: z.coerce.number().default(200),
+
+  // Future phases (Phase 5+)
   OLLAMA_BASE_URL: z.string().url().optional(),
   QDRANT_URL: z.string().url().optional(),
   QDRANT_COLLECTION_NAME: z.string().default('documind-embeddings'),

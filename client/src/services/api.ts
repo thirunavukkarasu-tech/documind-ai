@@ -128,6 +128,22 @@ export const documentAPI = {
     });
     return response;
   },
+
+  // Phase 4: Document Processing
+  getProcessingStatus: async (id: string) => {
+    const response = await api.get(`/documents/${id}/processing-status`);
+    return response.data.data;
+  },
+
+  getDocumentChunks: async (id: string, params?: { page?: number; limit?: number }) => {
+    const response = await api.get(`/documents/${id}/chunks`, { params });
+    return response.data.data;
+  },
+
+  retryProcessing: async (id: string) => {
+    const response = await api.post(`/documents/${id}/retry-processing`);
+    return response.data.data;
+  },
 };
 
 export default api;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Document } from '../hooks/useDocuments';
-import { useRenameDocument, useDeleteDocument, useDownloadDocument } from '../hooks/useDocuments';
+import { useRenameDocument, useDeleteDocument, useDownloadDocument, useRetryProcessing } from '../hooks/useDocuments';
 
 interface DocumentListProps {
   documents: Document[];
@@ -16,6 +16,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, isLoading, onRef
   const { renameDocument, isLoading: isRenaming } = useRenameDocument();
   const { deleteDocument, isLoading: isDeleting } = useDeleteDocument();
   const { downloadDocument } = useDownloadDocument();
+  const { retryProcessing, isLoading: isRetrying } = useRetryProcessing();
 
   const handleStartRename = (doc: Document) => {
     setRenameId(doc.id);
@@ -49,6 +50,15 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, isLoading, onRef
   const handleDownload = async (doc: Document) => {
     try {
       await downloadDocument(doc.id, doc.originalName);
+    } catch {
+      // Error is handled by the hook
+    }
+  };
+
+  const handleRetryProcessing = async (doc: Document) => {
+    try {
+      await retryProcessing(doc.id);
+      onRefresh();
     } catch {
       // Error is handled by the hook
     }
@@ -165,13 +175,24 @@ const DocumentList: React.FC<DocumentListProps> = ({ documents, isLoading, onRef
                     </>
                   ) : (
                     <>
-                      <button
-                        onClick={() => handleDownload(doc)}
-                        title="Download"
-                        className="text-blue-600 hover:text-blue-700 text-lg"
-                      >
-                        ⬇️
-                      </button>
+                      {doc.status === 'FAILED' ? (
+                        <button
+                          onClick={() => handleRetryProcessing(doc)}
+                          disabled={isRetrying}
+                          title="Retry processing"
+                          className="text-purple-600 hover:text-purple-700 text-lg disabled:opacity-50"
+                        >
+                          🔄
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleDownload(doc)}
+                          title="Download"
+                          className="text-blue-600 hover:text-blue-700 text-lg"
+                        >
+                          ⬇️
+                        </button>
+                      )}
                       <button
                         onClick={() => handleStartRename(doc)}
                         title="Rename"

@@ -1,4 +1,5 @@
 import { Document, IDocument } from '../models/document.model';
+import { Chunk, IChunk } from '../models/chunk.model';
 import { StorageService } from './storage/storage.service';
 import { logger } from '../utils/logger';
 
@@ -240,6 +241,102 @@ export class DocumentService {
       return document;
     } catch (error) {
       logger.error(`Failed to update document status: ${error}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Get processing status and metadata for a document
+   */
+  async getProcessingStatus(documentId: string, userId: string) {
+    try {
+      const document = await this.getDocumentById(documentId, userId);
+
+      return {
+        id: document._id,
+        status: document.status,
+        processingStartedAt: document.processingStartedAt || null,
+        processingCompletedAt: document.processingCompletedAt || null,
+        processingError: document.processingError || null,
+        pageCount: document.pageCount || 0,
+        extractedCharacterCount: document.extractedCharacterCount || 0,
+        chunkCount: document.chunkCount || 0,
+      };
+    } catch (error) {
+      logger.error(`Failed to get processing status: ${error}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Get chunks for a document with pagination
+   */
+  async getDocumentChunks(
+    documentId: string,
+    userId: string,
+    page: number = 1,
+    limit: number = 10
+  ) {
+    try {
+      // Verify document ownership
+      await this.getDocumentById(documentId, userId);
+
+      // Validate pagination
+      const pageNum = Math.max(1, page);
+      const limitNum = Math.min(limit, 100);
+      const skip = (pageNum - 1) * limitNum;
+
+      // Get chunks
+      const chunks = await Chunk.find({
+        documentId,
+        userId,
+      })
+        .sort({ chunkIndex: 1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean();
+
+      // Get total count
+      const total = await Chunk.countDocuments({
+        documentId,
+        userId,
+      });
+
+      const pagination = {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      };
+
+      logger.debug(`Retrieved ${chunks.length} chunks for document ${documentId}`);
+
+      return {
+        chunks: chunks.map((chunk) => ({
+          id: chunk._id,
+          index: chunk.chunkIndex,
+          content: chunk.content,
+          characterCount: chunk.characterCount,
+          pageNumber: chunk.pageNumber || null,
+        })),
+        pagination,
+      };
+    } catch (error) {
+      logger.error(`Failed to get document chunks: ${error}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete chunks for a document (used during processing cleanup)
+   */
+  async deleteDocumentChunks(documentId: string): Promise<number> {
+    try {
+      const result = await Chunk.deleteMany({ documentId });
+      logger.debug(`Deleted ${result.deletedCount} chunks for document ${documentId}`);
+      return result.deletedCount || 0;
+    } catch (error) {
+      logger.error(`Failed to delete document chunks: ${error}`);
       throw error;
     }
   }
